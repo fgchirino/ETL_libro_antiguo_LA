@@ -1,0 +1,19 @@
+# Entornos virtuales
+.venv/
+env/
+
+# Archivos temporales de macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+
+# Entorno de VS Code
+.vscode/
+
+# Directorio de datos (excluido por seguridad y peso)
+data/*
+!data/.gitkeep
