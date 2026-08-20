@@ -5,7 +5,7 @@ Registro centralizado de parámetros institucionales y estrategias de ingesta.
 CONFIG_INSTITUCIONES = {
     'bnmm': {
         'tipo_extractor': 'Z3950',
-        'archivo_origen': 'BNMM_urls.tsv',
+        'archivo_origen': 'bnmm_urls.tsv',
         'estrategia_extraccion': 'regex',
         'parametros_red': {
             'host': 'tcp:200.123.191.9:9991/BNA01',
@@ -23,7 +23,7 @@ CONFIG_INSTITUCIONES = {
     },
     'bne': {
         'tipo_extractor': 'SRU',
-        'archivo_origen': 'BNE_listado_ids_001.tsv',
+        'archivo_origen': 'bne_listado_ids.tsv',
         'estrategia_extraccion': 'directa',
         'parametros_red': {
             'host': 'https://catalogo.bne.es/view/sru/34BNE_INST'
