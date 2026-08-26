@@ -1,7 +1,6 @@
 """
-Configuración del mapeo de extracción MARC21 a formato tabular.
-Cada clave representa el nombre exacto de la columna final en el TSV.
-El valor contiene las etiquetas MARC y los subcampos a extraer.
+Configuración del mapeo de extracción MARC21.
+Single Source of Truth (SoT) para la generación de grafos JSON y el subproducto tabular.
 """
 
 MAPEO_MARC = {
@@ -63,25 +62,33 @@ MAPEO_MARC = {
     },
     "materias": {
         "etiquetas": ["600", "610", "611", "630", "648", "650", "651", "653", "655"],
-        "subcampos": ["a", "v", "x", "y", "z"]
+        "subcampos": ["*"]
     }
 }
 
-# --- NUEVAS REGLAS PARA LA FASE 2 ---
+# --- REGLAS ONTOLÓGICAS (FASE 2) ---
 
 MAPEO_AUTORIDADES = {
-    '100': 'Persona',
-    '700': 'Persona',
-    '600': 'Persona',
-    '110': 'Institucion',
-    '710': 'Institucion',
-    '610': 'Institucion',
-    '111': 'Congreso/Reunion',
-    '711': 'Congreso/Reunion',
-    '611': 'Congreso/Reunion',
-    '130': 'Obra',
-    '730': 'Obra',
-    '630': 'Obra'
+    '100': {'entidad': 'Persona'},
+    '700': {'entidad': 'Persona'},
+    '600': {'entidad': 'Persona'},
+    '110': {'entidad': 'Institucion'},
+    '710': {'entidad': 'Institucion'},
+    '610': {'entidad': 'Institucion'},
+    '111': {'entidad': 'Congreso_Reunion'},
+    '711': {'entidad': 'Congreso_Reunion'},
+    '611': {'entidad': 'Congreso_Reunion'},
+    '130': {'entidad': 'Obra'},
+    '730': {'entidad': 'Obra'},
+    '630': {'entidad': 'Obra'}
+}
+
+MAPEO_CONCEPTOS = {
+    '648': {'entidad': 'Termino_Cronologico', 'split_caracter': '--'},
+    '650': {'entidad': 'Topico', 'split_caracter': '--'},
+    '651': {'entidad': 'Lugar_Geografico', 'split_caracter': '--'},
+    '653': {'entidad': 'Keyword_No_Controlada', 'split_caracter': '--'},
+    '655': {'entidad': 'Genero_Forma', 'split_caracter': '--'}
 }
 
 MAPEO_LOD = {
@@ -92,25 +99,4 @@ MAPEO_LOD = {
     '016': [
         {'prefijo_origen': '(SpMaBN)', 'columna_destino': 'uri_bne', 'uri_base': 'https://datos.bne.es/resource/'}
     ]
-}
-
-ARCHIVOS_LOCALES = {
-    'materialidad_items.tsv': {
-        'columna_id': 'No. de sistema',
-        'requiere_padding': True,
-        'longitud_padding': 9,
-        'prefijo': 'bnmm_'
-    },
-    'materialidad_huellas.tsv': {
-        'columna_id': 'No. de sistema',
-        'requiere_padding': True,
-        'longitud_padding': 9,
-        'prefijo': 'bnmm_'
-    },
-    'inventario_temporalidades.tsv': {
-        'columna_id': 'ID_Inventario',
-        'requiere_padding': False,
-        'longitud_padding': 0,
-        'prefijo': ''
-    }
 }

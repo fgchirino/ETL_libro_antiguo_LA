@@ -1,7 +1,7 @@
-import re
 import urllib.parse
 from typing import Set
 import requests
+import xml.etree.ElementTree as ET
 
 from src.libreria.extractor_base import ExtractorBase
 
@@ -25,6 +25,7 @@ class ExtractorSRU(ExtractorBase):
         try:
             with open(ruta_fuente, 'r', encoding='utf-8') as f:
                 if estrategia == 'regex':
+                    import re
                     patron_regex = self.config.get('parseo_entrada', {}).get('regex_id')
                     if not patron_regex:
                         print("🛑 Error: Estrategia 'regex' definida pero no hay patrón en la configuración.")
@@ -61,10 +62,6 @@ class ExtractorSRU(ExtractorBase):
         schema = params_busqueda.get('recordSchema', 'marcxml')
         indice = params_busqueda.get('indice_busqueda', 'alma.mms_id')
 
-        # Expresión regular para aislar el registro MARCXML del sobre SRU
-        # Captura desde la apertura del tag <record> hasta su cierre
-        regex_record = re.compile(r'(<record.*?>.*?</record>)', re.DOTALL | re.IGNORECASE)
-
         try:
             with open(ruta_destino, 'w', encoding='utf-8') as f_out:
                 # 1. Escribir cabecera estándar XML y contenedor MARCXML
@@ -76,7 +73,6 @@ class ExtractorSRU(ExtractorBase):
                 print(f"  -> Iniciando descarga SRU de {total} registros...")
                 
                 for i, doc_id in enumerate(ids, 1):
-                    # Construcción de sintaxis CQL (ej: alma.mms_id="12345")
                     cql_query = f'{indice}="{doc_id}"'
                     cql_encoded = urllib.parse.quote(cql_query)
                     
@@ -85,14 +81,33 @@ class ExtractorSRU(ExtractorBase):
                     try:
                         res = requests.get(url, headers=self.headers, timeout=15)
                         if res.status_code == 200:
-                            match = regex_record.search(res.text)
-                            if match:
-                                f_out.write(match.group(1) + '\n')
-                                print(f"     ✅ [{i}/{total}] ID {doc_id} procesado.", end='\r')
-                            else:
-                                print(f"\n     ⚠️ [{i}/{total}] ID {doc_id}: Descargado, pero sin bloque <record> válido.")
+                            # Parseo estructural nativo
+                            try:
+                                root = ET.fromstring(res.text)
+                                registro_extraido = False
+                                
+                                # Buscamos el nodo recordData (ignorando prefijos de namespace de SRU)
+                                for elem in root.iter():
+                                    if elem.tag.endswith('recordData'):
+                                        # El verdadero registro MARCXML es el hijo de recordData
+                                        if len(elem) > 0:
+                                            marc_record = elem[0]
+                                            xml_raw = ET.tostring(marc_record, encoding='unicode')
+                                            f_out.write(xml_raw + '\n')
+                                            registro_extraido = True
+                                        break # Solo necesitamos uno
+                                
+                                if registro_extraido:
+                                    print(f"     ✅ [{i}/{total}] ID {doc_id} procesado.", end='\r')
+                                else:
+                                    print(f"\n     ⚠️ [{i}/{total}] ID {doc_id}: Descargado, pero <recordData> está vacío o no se encontró.")
+                            
+                            except ET.ParseError as pe:
+                                print(f"\n     🛑 [{i}/{total}] ID {doc_id}: La API devolvió un XML corrupto ({pe}).")
+                                
                         else:
                             print(f"\n     🛑 [{i}/{total}] ID {doc_id}: Error HTTP {res.status_code}.")
+                            
                     except requests.RequestException as e:
                         print(f"\n     🛑 [{i}/{total}] ID {doc_id}: Fallo de conexión ({e}).")
 
