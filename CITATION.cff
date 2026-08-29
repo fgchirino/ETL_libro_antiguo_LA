@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "Si utilizas este software en tu investigación, por favor cítalo de la siguiente manera."
+authors:
+  - family-names: "Chirino"
+    given-names: "Faustino Gabriel"
+    orcid: "https://orcid.org/0009-0005-9520-3269"
+    affiliation: "Universidad de Buenos Aires / CONICET"
+title: "ETL para reconstrucción de bibliotecas patrimoniales históricas"
+version: 1.0.0
+date-released: 2026-08-29
+abstract: "Herramienta basada en Python para la extracción, transformación (arquitectura Medallón/JSON) y análisis estadístico y de redes semánticas de catálogos bibliográficos antiguos, vinculándolos con evidencia arqueológica (ítems y huellas de lectura y procedencia)."
+repository-code: "https://github.com/fgchirino/ETL_libro_antiguo_LA"
+license: CC-BY-NC-SA-4.0
